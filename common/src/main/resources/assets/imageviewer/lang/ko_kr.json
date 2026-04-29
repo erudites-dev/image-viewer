@@ -1,0 +1,9 @@
+{
+  "key.imageviewer.open": "이미지 뷰어 열기",
+  "key.category.imageviewer.imageviewer": "이미지 뷰어",
+  "screen.imageviewer.select_category": "카테고리 선택",
+  "label.imageviewer.main": "메인",
+  "label.imageviewer.category": "%s",
+  "commands.imageviewer.reload.no_server": "이미지 뷰어 웹 서버가 실행 중이 아닙니다",
+  "commands.imageviewer.reload.success": "%s명의 플레이어에게 이미지 뷰어를 다시 로드했습니다"
+}

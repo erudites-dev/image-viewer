@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "imageviewer",
+  "version": "${version}",
+  "name": "Image Viewer",
+  "description": "Renders server-provided images in an in-game browser overlay.",
+  "authors": [
+    {
+      "name": "shihyeon",
+      "contact": {
+        "sources": "https://github.com/shihyeon"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/image-viewer",
+    "sources": "https://github.com/erudites-dev/image-viewer",
+    "issues": "https://github.com/erudites-dev/image-viewer/issues"
+  },
+  "license": "LGPL-3.0-only",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "dev.erudites.mods.imageviewer.fabric.client.ImageViewerClientFabricMod"
+    ],
+    "main": [
+      "dev.erudites.mods.imageviewer.fabric.ImageViewerFabricMod"
+    ]
+  },
+  "mixins": [
+    "imageviewer.mixins.json"
+  ],
+  "depends": {
+    "java": ">=25",
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": ">=${minecraft_version}",
+    "mcef": "*"
+  }
+}
