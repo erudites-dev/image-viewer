@@ -36,7 +36,7 @@ public class ImageViewerSelectionScreen extends Screen {
 
             addRenderableWidget(Button.builder(label, _ -> {
                 String url = buildUrl(category);
-                minecraft.setScreen(new ImageViewerScreen(url));
+                this.minecraft.gui.setScreen(new ImageViewerScreen(url));
             }).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
         }
     }

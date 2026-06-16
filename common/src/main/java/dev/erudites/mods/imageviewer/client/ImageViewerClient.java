@@ -32,7 +32,7 @@ public final class ImageViewerClient {
 
     public static void tick(Minecraft client) {
         while (OPEN_KEY.consumeClick()) {
-            if (lastBaseUrl != null && lastCategories != null && client.screen == null) {
+            if (lastBaseUrl != null && lastCategories != null && client.gui.screen() == null) {
                 openViewer(client, lastBaseUrl, lastCategories);
             }
         }
@@ -40,14 +40,14 @@ public final class ImageViewerClient {
 
     private static void openViewer(Minecraft minecraft, String baseUrl, List<String> categories) {
         if (categories.isEmpty()) {
-            minecraft.setScreen(new ImageViewerScreen(baseUrl));
+            minecraft.gui.setScreen(new ImageViewerScreen(baseUrl));
         } else if (categories.size() == 1) {
             String cat = categories.getFirst();
             String url = cat.equals("main") ? baseUrl : baseUrl + cat + "/";
-            minecraft.setScreen(new ImageViewerScreen(url));
+            minecraft.gui.setScreen(new ImageViewerScreen(url));
         } else {
             ImageViewerSelectionScreen.baseUrl = baseUrl;
-            minecraft.setScreen(new ImageViewerSelectionScreen(categories));
+            minecraft.gui.setScreen(new ImageViewerSelectionScreen(categories));
         }
     }
 
