@@ -1,37 +1,49 @@
 package dev.erudites.mods.imageviewer.client.texture;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.AddressMode;
+import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.TextureFormat;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ImageTexture implements AutoCloseable {
 
     private static final AtomicInteger LIVE_COUNT = new AtomicInteger();
 
-    private record GlTile(int x, int y, int width, int height, int textureId) {}
+    private record GpuTile(int x, int y, int width, int height, GpuTexture texture) {
+        void close() {
+            this.texture.close();
+        }
+    }
 
     private final int width;
     private final int height;
     private final long byteSize;
-    private final List<GlTile> tiles;
+    private final List<GpuTile> tiles;
     private boolean closed;
 
-    private ImageTexture(final int width, final int height, final long byteSize, final List<GlTile> tiles) {
+    private ImageTexture(final int width, final int height, final long byteSize, final List<GpuTile> tiles) {
         this.width = width;
         this.height = height;
         this.byteSize = byteSize;
@@ -39,54 +51,35 @@ public final class ImageTexture implements AutoCloseable {
         LIVE_COUNT.incrementAndGet();
     }
 
-    public static ImageTexture upload(final DecodedImage image) {
+    public static ImageTexture upload(final String label, final DecodedImage image) {
         RenderSystem.assertOnRenderThread();
-        List<GlTile> tiles = new ArrayList<>(image.tiles().size());
+        GpuDevice device = RenderSystem.getDevice();
+        CommandEncoder encoder = device.createCommandEncoder();
+        List<GpuTile> tiles = new ArrayList<>(image.tiles().size());
         try {
             for (DecodedImage.Tile tile : image.tiles()) {
-                tiles.add(uploadTile(tile));
+                NativeImage[] levels = tile.mipLevels();
+                GpuTexture texture = device.createTexture(label, TextureFormat.RGBA8, tile.width(), tile.height(), levels.length);
+                try {
+                    for (int level = 0; level < levels.length; level++) {
+                        NativeImage source = levels[level];
+                        encoder.writeToTexture(texture, source, level, 0, 0, source.getWidth(), source.getHeight(), 0, 0);
+                    }
+                    texture.setAddressMode(AddressMode.CLAMP_TO_EDGE);
+                    texture.setTextureFilter(FilterMode.LINEAR, true);
+                } catch (RuntimeException | Error e) {
+                    texture.close();
+                    throw e;
+                }
+                tiles.add(new GpuTile(tile.x(), tile.y(), tile.width(), tile.height(), texture));
             }
-        } catch (RuntimeException e) {
-            for (GlTile tile : tiles) {
-                TextureUtil.releaseTextureId(tile.textureId());
+        } catch (RuntimeException | Error e) {
+            for (GpuTile tile : tiles) {
+                tile.close();
             }
             throw e;
         }
         return new ImageTexture(image.width(), image.height(), image.byteSize(), tiles);
-    }
-
-    private static GlTile uploadTile(final DecodedImage.Tile tile) {
-        PixelBuffer[] levels = tile.mipLevels();
-        int textureId = TextureUtil.generateTextureId();
-        try {
-            TextureUtil.prepareImage(NativeImage.InternalGlFormat.RGBA, textureId, levels.length - 1, tile.width(), tile.height());
-            GlStateManager._pixelStore(GL11.GL_UNPACK_ROW_LENGTH, 0);
-            GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_ROWS, 0);
-            GlStateManager._pixelStore(GL11.GL_UNPACK_SKIP_PIXELS, 0);
-            GlStateManager._pixelStore(GL11.GL_UNPACK_ALIGNMENT, 4);
-            for (int level = 0; level < levels.length; level++) {
-                PixelBuffer source = levels[level];
-                GlStateManager._texSubImage2D(
-                    GL11.GL_TEXTURE_2D,
-                    level,
-                    0,
-                    0,
-                    source.width(),
-                    source.height(),
-                    GL11.GL_RGBA,
-                    GL11.GL_UNSIGNED_BYTE,
-                    source.address()
-                );
-            }
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GlStateManager._texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-        } catch (RuntimeException e) {
-            TextureUtil.releaseTextureId(textureId);
-            throw e;
-        }
-        return new GlTile(tile.x(), tile.y(), tile.width(), tile.height(), textureId);
     }
 
     public int width() {
@@ -110,10 +103,8 @@ public final class ImageTexture implements AutoCloseable {
         double scaleX = (double) (x1 - x0) / this.width;
         double scaleY = (double) (y1 - y0) / this.height;
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        for (GlTile tile : this.tiles) {
+        RenderTarget target = Minecraft.getInstance().getMainRenderTarget();
+        for (GpuTile tile : this.tiles) {
             float left = x0 + Math.round(tile.x() * scaleX);
             float right = x0 + Math.round((tile.x() + tile.width()) * scaleX);
             float top = y0 + Math.round(tile.y() * scaleY);
@@ -121,15 +112,29 @@ public final class ImageTexture implements AutoCloseable {
             if (right <= left || bottom <= top) {
                 continue;
             }
-            RenderSystem.setShaderTexture(0, tile.textureId());
-            BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            builder.addVertex(pose, left, top, 0.0F).setUv(0.0F, 0.0F);
-            builder.addVertex(pose, left, bottom, 0.0F).setUv(0.0F, 1.0F);
-            builder.addVertex(pose, right, bottom, 0.0F).setUv(1.0F, 1.0F);
-            builder.addVertex(pose, right, top, 0.0F).setUv(1.0F, 0.0F);
-            BufferUploader.drawWithShader(builder.buildOrThrow());
+            BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            builder.addVertex(pose, left, top, 0.0F).setUv(0.0F, 0.0F).setColor(-1);
+            builder.addVertex(pose, left, bottom, 0.0F).setUv(0.0F, 1.0F).setColor(-1);
+            builder.addVertex(pose, right, bottom, 0.0F).setUv(1.0F, 1.0F).setColor(-1);
+            builder.addVertex(pose, right, top, 0.0F).setUv(1.0F, 0.0F).setColor(-1);
+            try (MeshData mesh = builder.buildOrThrow()) {
+                GpuBuffer vertices = DefaultVertexFormat.POSITION_TEX_COLOR.uploadImmediateVertexBuffer(mesh.vertexBuffer());
+                RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+                GpuBuffer indexBuffer = indices.getBuffer(mesh.drawState().indexCount());
+                try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                    target.getColorTexture(), OptionalInt.empty(), target.getDepthTexture(), OptionalDouble.empty()
+                )) {
+                    pass.setPipeline(RenderPipelines.GUI_TEXTURED);
+                    pass.setVertexBuffer(0, vertices);
+                    pass.setIndexBuffer(indexBuffer, indices.type());
+                    pass.bindSampler("Sampler0", tile.texture());
+                    if (RenderSystem.SCISSOR_STATE.isEnabled()) {
+                        pass.enableScissor(RenderSystem.SCISSOR_STATE);
+                    }
+                    pass.drawIndexed(0, mesh.drawState().indexCount());
+                }
+            }
         }
-        RenderSystem.disableBlend();
     }
 
     public static int liveCount() {
@@ -142,8 +147,8 @@ public final class ImageTexture implements AutoCloseable {
             return;
         }
         this.closed = true;
-        for (GlTile tile : this.tiles) {
-            TextureUtil.releaseTextureId(tile.textureId());
+        for (GpuTile tile : this.tiles) {
+            tile.close();
         }
         LIVE_COUNT.decrementAndGet();
     }

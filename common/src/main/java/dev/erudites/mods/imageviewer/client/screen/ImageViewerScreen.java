@@ -92,7 +92,7 @@ public class ImageViewerScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.maxTextureSize = RenderSystem.maxSupportedTextureSize();
+        this.maxTextureSize = RenderSystem.getDevice().getMaxTextureSize();
         if (this.active && !this.slots.containsKey(this.index)) {
             this.show(this.index);
         }
@@ -199,7 +199,7 @@ public class ImageViewerScreen extends Screen {
                 return;
             }
             long uploadStart = System.nanoTime();
-            slot.texture = ImageTexture.upload(decoded);
+            slot.texture = ImageTexture.upload(ImageViewer.MODID + ":" + entry.hash(), decoded);
             if (ImageStore.LOG_TIMINGS) {
                 ImageViewer.LOGGER.info(
                     "[timings] {} ({}x{}, {} tiles) decode+mipmap {} ms, upload {} ms",

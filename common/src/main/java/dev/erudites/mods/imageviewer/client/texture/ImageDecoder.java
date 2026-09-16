@@ -1,5 +1,6 @@
 package dev.erudites.mods.imageviewer.client.texture;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
@@ -14,7 +15,7 @@ public final class ImageDecoder {
 
     public static final long MAX_PIXELS = 8192L * 8192L;
 
-    private static final int CHANNELS = PixelBuffer.CHANNELS;
+    private static final int CHANNELS = 4;
     private static final byte[] PNG_SIGNATURE = {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n'};
     private static final byte[] JPEG_SIGNATURE = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
 
@@ -86,7 +87,7 @@ public final class ImageDecoder {
                 for (int tileX = 0; tileX < width; tileX += tileSize) {
                     int tileWidth = Math.min(tileSize, width - tileX);
                     int tileHeight = Math.min(tileSize, height - tileY);
-                    PixelBuffer[] levels = new PixelBuffer[mipLevelCount(tileWidth, tileHeight)];
+                    NativeImage[] levels = new NativeImage[mipLevelCount(tileWidth, tileHeight)];
                     try {
                         levels[0] = copyRegion(pixels, width, tileX, tileY, tileWidth, tileHeight);
                         for (int level = 1; level < levels.length; level++) {
@@ -112,24 +113,24 @@ public final class ImageDecoder {
         return 32 - Integer.numberOfLeadingZeros(Math.min(width, height));
     }
 
-    private static PixelBuffer copyRegion(final long pixels, final int sourceWidth, final int x, final int y, final int width, final int height) {
-        PixelBuffer image = PixelBuffer.allocate(width, height);
+    private static NativeImage copyRegion(final long pixels, final int sourceWidth, final int x, final int y, final int width, final int height) {
+        NativeImage image = new NativeImage(NativeImage.Format.RGBA, width, height, false);
         long rowBytes = (long) width * CHANNELS;
         for (int row = 0; row < height; row++) {
             long source = pixels + ((long) (y + row) * sourceWidth + x) * CHANNELS;
-            long destination = image.address() + row * rowBytes;
+            long destination = image.getPointer() + row * rowBytes;
             MemoryUtil.memCopy(source, destination, rowBytes);
         }
         return image;
     }
 
-    static PixelBuffer downsample(final PixelBuffer source) {
-        int width = source.width() >> 1;
-        int height = source.height() >> 1;
-        int sourceWidth = source.width();
-        long src = source.address();
-        PixelBuffer target = PixelBuffer.allocate(width, height);
-        long dst = target.address();
+    static NativeImage downsample(final NativeImage source) {
+        int width = source.getWidth() >> 1;
+        int height = source.getHeight() >> 1;
+        int sourceWidth = source.getWidth();
+        long src = source.getPointer();
+        NativeImage target = new NativeImage(NativeImage.Format.RGBA, width, height, false);
+        long dst = target.getPointer();
 
         for (int y = 0; y < height; y++) {
             long rowA = src + (long) (y * 2) * sourceWidth * CHANNELS;
