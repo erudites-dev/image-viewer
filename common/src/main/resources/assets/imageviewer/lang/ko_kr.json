@@ -1,6 +1,6 @@
 {
   "key.imageviewer.open": "이미지 뷰어 열기",
-  "key.categories.imageviewer": "이미지 뷰어",
+  "key.category.imageviewer.imageviewer": "이미지 뷰어",
   "screen.imageviewer.select_category": "카테고리 선택",
   "screen.imageviewer.loading": "이미지를 불러오는 중...",
   "screen.imageviewer.downloading": "이미지 다운로드 중... %s%% (%s / %s MB)",

@@ -33,7 +33,7 @@ public final class ImageViewerClient {
     public static final KeyMapping OPEN_KEY = new KeyMapping(
         "key.imageviewer.open",
         GLFW.GLFW_KEY_I,
-        "key.categories.imageviewer"
+        KeyMapping.Category.register(ImageViewer.id("imageviewer"))
     );
 
     private static final ExecutorService IO_EXECUTOR = daemonExecutor("ImageViewer-IO");

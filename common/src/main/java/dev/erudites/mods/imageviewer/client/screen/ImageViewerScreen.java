@@ -11,6 +11,8 @@ import dev.erudites.mods.imageviewer.client.texture.ImageTexture;
 import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -333,22 +335,22 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        this.pressedButton = button;
-        this.pressX = mouseX;
-        this.pressY = mouseY;
+    public boolean mouseClicked(final MouseButtonEvent event, final boolean doubleClick) {
+        this.pressedButton = event.button();
+        this.pressX = event.x();
+        this.pressY = event.y();
         this.dragging = false;
         return true;
     }
 
     @Override
-    public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double dragX, final double dragY) {
-        if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT || this.pressedButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+    public boolean mouseDragged(final MouseButtonEvent event, final double dragX, final double dragY) {
+        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT || this.pressedButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             return true;
         }
-        double scale = this.minecraft.getWindow().getGuiScale();
+        int scale = this.minecraft.getWindow().getGuiScale();
         if (!this.dragging) {
-            double distance = Math.hypot(mouseX - this.pressX, mouseY - this.pressY) * scale;
+            double distance = Math.hypot(event.x() - this.pressX, event.y() - this.pressY) * scale;
             this.dragging = distance > DRAG_THRESHOLD_PIXELS;
         }
         if (this.dragging) {
@@ -360,8 +362,8 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        if (button != this.pressedButton) {
+    public boolean mouseReleased(final MouseButtonEvent event) {
+        if (event.button() != this.pressedButton) {
             return true;
         }
         boolean wasDragging = this.dragging;
@@ -370,9 +372,9 @@ public class ImageViewerScreen extends Screen {
         if (wasDragging) {
             return true;
         }
-        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             this.next();
-        } else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        } else if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             this.previous();
         }
         return true;
@@ -385,7 +387,7 @@ public class ImageViewerScreen extends Screen {
             return true;
         }
         Window window = this.minecraft.getWindow();
-        double scale = window.getGuiScale();
+        int scale = window.getGuiScale();
         double newZoom = Math.clamp(this.zoom * Math.pow(ZOOM_STEP, scrollY), MIN_ZOOM, MAX_ZOOM);
         double ratio = newZoom / this.zoom;
         double offsetX = mouseX * scale - (window.getWidth() / 2.0 + this.panX);
@@ -398,8 +400,8 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
-        switch (keyCode) {
+    public boolean keyPressed(final KeyEvent event) {
+        switch (event.key()) {
             case GLFW.GLFW_KEY_RIGHT, GLFW.GLFW_KEY_SPACE, GLFW.GLFW_KEY_PAGE_DOWN -> {
                 this.next();
                 return true;
@@ -413,7 +415,7 @@ public class ImageViewerScreen extends Screen {
                 return true;
             }
             default -> {
-                return super.keyPressed(keyCode, scanCode, modifiers);
+                return super.keyPressed(event);
             }
         }
     }
