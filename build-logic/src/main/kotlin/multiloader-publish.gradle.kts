@@ -40,12 +40,11 @@ gradle.projectsEvaluated {
             projectId = "1527636"
             minecraftVersionRange {
                 start = BuildConfig.MINECRAFT_VERSION_MIN
-                end = "latest"
+                end = BuildConfig.MINECRAFT_PUBLISH_END
             }
             clientRequired = true
             serverRequired = true
             javaVersions.add(JavaVersion.toVersion(BuildConfig.JAVA_VERSION))
-            requires("fabric-api")
         }
 
         val mrOptions = modrinthOptions {
@@ -53,10 +52,9 @@ gradle.projectsEvaluated {
             projectId = "GO2oCTbO"
             minecraftVersionRange {
                 start = BuildConfig.MINECRAFT_VERSION_MIN
-                end = "latest"
+                end = BuildConfig.MINECRAFT_PUBLISH_END
                 includeSnapshots = includeSnapshot
             }
-            requires("fabric-api")
         }
 
         val minecraftVersion = BuildConfig.MINECRAFT_VERSION.substringBefore('-')
@@ -72,6 +70,7 @@ gradle.projectsEvaluated {
                     file = fabricJar
                     modLoaders.add("fabric")
                     modLoaders.add("quilt")
+                    requires("fabric-api")
                     version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-fabric"
                     displayName = "Image Viewer ${BuildConfig.MOD_VERSION} for Fabric ${BuildConfig.MINECRAFT_VERSION}"
                 }
@@ -83,6 +82,7 @@ gradle.projectsEvaluated {
                     file = fabricJar
                     modLoaders.add("fabric")
                     modLoaders.add("quilt")
+                    requires("fabric-api")
                     version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-fabric"
                     displayName = "Image Viewer ${BuildConfig.MOD_VERSION} for Fabric ${BuildConfig.MINECRAFT_VERSION}"
                 }
