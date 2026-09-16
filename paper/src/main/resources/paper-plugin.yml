@@ -1,7 +1,7 @@
 name: ImageViewer
 version: '${version}'
 main: dev.erudites.mods.imageviewer.paper.ImageViewerPlugin
-api-version: '1.21'
+api-version: '1.21.4'
 authors: ["shihyeon"]
 website: 'https://modrinth.com/mod/image-viewer'
 description: 'Server-side companion for the Image Viewer mod.'

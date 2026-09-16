@@ -74,7 +74,7 @@ public class ImageViewerPlugin extends JavaPlugin implements Listener {
             PayloadSender.encode(buf, payload);
             byte[] bytes = new byte[buf.readableBytes()];
             buf.readBytes(bytes);
-            return new ClientboundCustomPayloadPacket(new DiscardedPayload(payload.type().id(), Unpooled.wrappedBuffer(bytes)));
+            return new ClientboundCustomPayloadPacket(new DiscardedPayload(payload.type().id(), bytes));
         } finally {
             buf.release();
         }
