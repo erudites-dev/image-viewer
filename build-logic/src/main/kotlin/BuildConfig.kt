@@ -12,7 +12,7 @@ object BuildConfig {
     val PAPER_VERSION: String = "26.1.2.build.+"
 
     // https://semver.org/
-    var MOD_VERSION: String = "0.1.0"
+    var MOD_VERSION: String = "0.2.0"
 
     fun createVersionString(project: Project): String {
         val builder = StringBuilder()
