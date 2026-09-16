@@ -1,8 +1,9 @@
 package dev.erudites.mods.imageviewer.client.screen;
 
-import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.GpuFormat;
 import dev.erudites.mods.imageviewer.ImageViewer;
 import dev.erudites.mods.imageviewer.client.ImageViewerClient;
 import dev.erudites.mods.imageviewer.client.cache.ImageStore;
@@ -16,7 +17,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -346,7 +346,7 @@ public class ImageViewerScreen extends Screen {
 
     @Override
     public boolean mouseDragged(final MouseButtonEvent event, final double dragX, final double dragY) {
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT || this.pressedButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (event.button() != InputConstants.MOUSE_BUTTON_LEFT || this.pressedButton != InputConstants.MOUSE_BUTTON_LEFT) {
             return true;
         }
         int scale = this.minecraft.getWindow().getGuiScale();
@@ -373,9 +373,9 @@ public class ImageViewerScreen extends Screen {
         if (wasDragging) {
             return true;
         }
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
             this.next();
-        } else if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        } else if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT) {
             this.previous();
         }
         return true;
@@ -403,15 +403,15 @@ public class ImageViewerScreen extends Screen {
     @Override
     public boolean keyPressed(final KeyEvent event) {
         switch (event.key()) {
-            case GLFW.GLFW_KEY_RIGHT, GLFW.GLFW_KEY_SPACE, GLFW.GLFW_KEY_PAGE_DOWN -> {
+            case InputConstants.KEY_RIGHT, InputConstants.KEY_SPACE, InputConstants.KEY_PAGEDOWN -> {
                 this.next();
                 return true;
             }
-            case GLFW.GLFW_KEY_LEFT, GLFW.GLFW_KEY_PAGE_UP -> {
+            case InputConstants.KEY_LEFT, InputConstants.KEY_PAGEUP -> {
                 this.previous();
                 return true;
             }
-            case GLFW.GLFW_KEY_0, GLFW.GLFW_KEY_KP_0 -> {
+            case InputConstants.KEY_0, InputConstants.KEY_NUMPAD0 -> {
                 this.resetView();
                 return true;
             }

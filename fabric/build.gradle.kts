@@ -1,6 +1,6 @@
 plugins {
     id("multiloader-platform")
-    id("net.fabricmc.fabric-loom") version("1.16.+")
+    id("net.fabricmc.fabric-loom") version("1.17.+")
 }
 
 base {
@@ -45,7 +45,6 @@ loom {
         named("client") {
             client()
             configName = "Fabric/Client"
-            appendProjectPathToConfigName = false
             ideConfigGenerated(true)
             runDir("run")
         }

@@ -1,5 +1,6 @@
 package dev.erudites.mods.imageviewer.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.erudites.mods.imageviewer.ImageViewer;
 import dev.erudites.mods.imageviewer.client.cache.DiskImageCache;
 import dev.erudites.mods.imageviewer.client.cache.ImageStore;
@@ -14,7 +15,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jspecify.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +32,7 @@ public final class ImageViewerClient {
 
     public static final KeyMapping OPEN_KEY = new KeyMapping(
         "key.imageviewer.open",
-        GLFW.GLFW_KEY_I,
+        InputConstants.KEY_I,
         KeyMapping.Category.register(ImageViewer.id("imageviewer"))
     );
 
