@@ -6,21 +6,27 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(value = ImageViewer.MODID, dist = Dist.CLIENT)
 public class ImageViewerClientNeoForgeMod {
 
-    public ImageViewerClientNeoForgeMod(IEventBus modBus) {
+    public ImageViewerClientNeoForgeMod(final IEventBus modBus) {
         modBus.addListener(this::registerKeyMappings);
+        ImageViewerClient.init(ClientPacketDistributor::sendToServer);
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post _) ->
             ImageViewerClient.tick(Minecraft.getInstance())
         );
+        NeoForge.EVENT_BUS.addListener((ClientPlayerNetworkEvent.LoggingOut _) ->
+            ImageViewerClient.onDisconnect(Minecraft.getInstance())
+        );
     }
 
-    private void registerKeyMappings(RegisterKeyMappingsEvent event) {
+    private void registerKeyMappings(final RegisterKeyMappingsEvent event) {
         event.register(ImageViewerClient.OPEN_KEY);
     }
 }

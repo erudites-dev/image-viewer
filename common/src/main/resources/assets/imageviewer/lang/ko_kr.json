@@ -2,8 +2,11 @@
   "key.imageviewer.open": "이미지 뷰어 열기",
   "key.category.imageviewer.imageviewer": "이미지 뷰어",
   "screen.imageviewer.select_category": "카테고리 선택",
+  "screen.imageviewer.loading": "이미지를 불러오는 중...",
+  "screen.imageviewer.downloading": "이미지 다운로드 중... %s%% (%s / %s MB)",
+  "screen.imageviewer.failed": "이미지를 불러오지 못했습니다",
   "label.imageviewer.main": "메인",
   "label.imageviewer.category": "%s",
-  "commands.imageviewer.reload.no_server": "이미지 뷰어 웹 서버가 실행 중이 아닙니다",
+  "commands.imageviewer.reload.not_running": "이미지 뷰어가 실행 중이 아닙니다",
   "commands.imageviewer.reload.success": "%s명의 플레이어에게 이미지 뷰어를 다시 로드했습니다"
 }

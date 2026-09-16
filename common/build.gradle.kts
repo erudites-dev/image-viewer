@@ -18,7 +18,9 @@ dependencies {
     compileOnly("net.fabricmc:sponge-mixin:0.17.0+mixin.0.8.7")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
-    compileOnly("de.keksuccino:mcef-fabric:${BuildConfig.MCEF_VERSION}")
+    testImplementation(platform("org.junit:junit-bom:5.14.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 loom {
@@ -63,5 +65,9 @@ fun exportSourceSet(name: String, sourceSet: SourceSet) {
 }
 
 exportSourceSet("commonMain", sourceSets["main"])
+
+tasks.test {
+    useJUnitPlatform()
+}
 
 tasks.jar { enabled = false }

@@ -16,17 +16,3 @@ tasks.withType<JavaCompile> {
 tasks.withType<GenerateModuleMetadata>().configureEach {
     enabled = false
 }
-
-repositories {
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Keksuccino"
-                url = uri("https://keksuccino.github.io/maven/")
-            }
-        }
-        filter {
-            includeGroup("de.keksuccino")
-        }
-    }
-}

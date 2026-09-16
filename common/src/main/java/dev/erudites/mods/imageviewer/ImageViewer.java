@@ -1,104 +1,106 @@
 package dev.erudites.mods.imageviewer;
 
 import dev.erudites.mods.imageviewer.config.ImageViewerConfig;
-import dev.erudites.mods.imageviewer.network.OpenImagePayload;
-import dev.erudites.mods.imageviewer.server.ImageWebServer;
+import dev.erudites.mods.imageviewer.network.ImageHashes;
+import dev.erudites.mods.imageviewer.network.PayloadSender;
+import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
+import dev.erudites.mods.imageviewer.network.payload.ImageRequestPayload;
+import dev.erudites.mods.imageviewer.server.ImageCatalog;
+import dev.erudites.mods.imageviewer.server.ImageTransferService;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public final class ImageViewer {
 
     public static final String MODID = "imageviewer";
     public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
 
-    private static volatile ImageWebServer webServer;
+    private static final int NETWORK_VERSION = 1;
+
+    private static @Nullable ImageCatalog catalog;
+    private static @Nullable ImageTransferService transfers;
 
     private ImageViewer() {}
 
-    public static ImageWebServer startServer() {
-        ImageViewerConfig config = ImageViewerConfig.get();
-        ImageWebServer server = new ImageWebServer();
-        try {
-            server.start(config.webServerPort);
-            LOGGER.info(
-                "Image Viewer web server started on port {} (configured: {})",
-                server.getPort(),
-                config.webServerPort == 0
-                    ? "random"
-                    : config.webServerPort
-            );
-            webServer = server;
-            return server;
-        } catch (IOException e) {
-            LOGGER.error("Failed to start Image Viewer web server on port {}", config.webServerPort, e);
+    public static void start() {
+        stop();
+        ImageViewerConfig config = ImageViewerConfig.reload();
+        ImageCatalog scanned = ImageCatalog.scan(ImageViewerConfig.IMAGES_DIR, config.maxImageBytes, ImageCatalog.empty());
+        catalog = scanned;
+        transfers = new ImageTransferService(scanned, config.maxUploadBytesPerSecond);
+        LOGGER.info("Image Viewer started with {} categories", scanned.categories().size());
+    }
+
+    public static void stop() {
+        ImageTransferService service = transfers;
+        transfers = null;
+        catalog = null;
+        if (service != null) {
+            service.close();
+        }
+    }
+
+    public static boolean isRunning() {
+        return catalog != null;
+    }
+
+    public static boolean reload() {
+        ImageCatalog previous = catalog;
+        ImageTransferService service = transfers;
+        if (previous == null || service == null) {
+            return false;
+        }
+        ImageViewerConfig config = ImageViewerConfig.reload();
+        ImageCatalog scanned = ImageCatalog.scan(ImageViewerConfig.IMAGES_DIR, config.maxImageBytes, previous);
+        catalog = scanned;
+        service.update(scanned, config.maxUploadBytesPerSecond);
+        return true;
+    }
+
+    public static @Nullable CatalogPayload catalogPayload() {
+        ImageCatalog current = catalog;
+        if (current == null) {
             return null;
         }
+        return current.toPayload(ImageViewerConfig.get().keepAspectRatio);
     }
 
-    public static void stopServer() {
-        ImageWebServer server = webServer;
-        if (server != null) {
-            server.stop();
-            webServer = null;
+    public static void sendCatalog(final ServerPlayer player, final PayloadSender sender) {
+        CatalogPayload payload = catalogPayload();
+        if (payload != null && sender.canReceive(player)) {
+            sender.send(player, payload);
         }
     }
 
-    public static ImageWebServer webServer() {
-        return webServer;
+    public static void handleRequest(final ServerPlayer player, final List<ImageRequestPayload.Entry> entries, final PayloadSender sender) {
+        ImageTransferService service = transfers;
+        if (service == null) {
+            return;
+        }
+        List<ImageRequestPayload.Entry> valid = entries.stream()
+            .filter(entry -> ImageHashes.isValid(entry.hash()))
+            .toList();
+        service.request(player.getUUID(), (payload, onWritten) -> sender.send(player, payload, onWritten), valid);
     }
 
-    public static OpenImagePayload buildPayload() {
-        ImageWebServer server = webServer;
-        if (server == null) {
-            return null;
+    public static void onPlayerLeave(final UUID playerId) {
+        ImageTransferService service = transfers;
+        if (service != null) {
+            service.remove(playerId);
         }
-        return new OpenImagePayload(server.getPort(), detectCategories());
     }
 
-    /**
-     * Detects image categories from the server's imageviewer/images/ directory.
-     * "main" = images directly in imageviewer/images/
-     * subdir names = subdirectories containing images
-     */
-    public static List<String> detectCategories() {
-        List<String> categories = new ArrayList<>();
-        File imagesDir = new File("imageviewer/images");
-        if (!imagesDir.exists()) {
-            imagesDir.mkdirs();
-        }
-
-        File[] mainImages = imagesDir.listFiles((_, name) -> isImage(name));
-        if (mainImages != null && mainImages.length > 0) {
-            categories.add("main");
-        }
-
-        File[] subdirs = imagesDir.listFiles(File::isDirectory);
-        if (subdirs != null) {
-            Arrays.sort(subdirs);
-            for (File subdir : subdirs) {
-                File[] images = subdir.listFiles((_, name) -> isImage(name));
-                if (images != null && images.length > 0) {
-                    categories.add(subdir.getName());
-                }
-            }
-        }
-
-        return categories;
-    }
-
-    private static boolean isImage(String name) {
-        String lower = name.toLowerCase();
-        return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg");
-    }
-
-    public static Identifier id(String path) {
+    public static Identifier id(final String path) {
         return Identifier.fromNamespaceAndPath(MODID, path);
+    }
+
+    public static Identifier payloadId(final String name) {
+        return id(name + "_v" + NETWORK_VERSION);
     }
 }

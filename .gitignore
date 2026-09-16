@@ -6,6 +6,7 @@ build/
 .kotlin
 .sources
 run/
+logs/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

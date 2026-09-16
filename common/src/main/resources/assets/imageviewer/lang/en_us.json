@@ -2,8 +2,11 @@
   "key.imageviewer.open": "Open Image Viewer",
   "key.category.imageviewer.imageviewer": "Image Viewer",
   "screen.imageviewer.select_category": "Select Category",
+  "screen.imageviewer.loading": "Loading image...",
+  "screen.imageviewer.downloading": "Downloading image... %s%% (%s / %s MB)",
+  "screen.imageviewer.failed": "Failed to load image",
   "label.imageviewer.main": "Main",
   "label.imageviewer.category": "%s",
-  "commands.imageviewer.reload.no_server": "Image Viewer web server is not running",
+  "commands.imageviewer.reload.not_running": "Image Viewer is not running",
   "commands.imageviewer.reload.success": "Image Viewer reloaded for %s player(s)"
 }

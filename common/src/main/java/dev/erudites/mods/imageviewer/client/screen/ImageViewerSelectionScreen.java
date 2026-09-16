@@ -1,5 +1,6 @@
 package dev.erudites.mods.imageviewer.client.screen;
 
+import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -13,31 +14,32 @@ public class ImageViewerSelectionScreen extends Screen {
     private static final int BUTTON_HEIGHT = 20;
     private static final int BUTTON_SPACING = 4;
 
-    private final List<String> categories;
+    private final List<CatalogPayload.Category> categories;
+    private final boolean keepAspectRatio;
 
-    public ImageViewerSelectionScreen(List<String> categories) {
+    public ImageViewerSelectionScreen(final List<CatalogPayload.Category> categories, final boolean keepAspectRatio) {
         super(Component.translatable("screen.imageviewer.select_category"));
-        this.categories = categories;
+        this.categories = List.copyOf(categories);
+        this.keepAspectRatio = keepAspectRatio;
     }
 
     @Override
     protected void init() {
         super.init();
         int totalHeight = this.categories.size() * (BUTTON_HEIGHT + BUTTON_SPACING) - BUTTON_SPACING;
-        int startY = (height - totalHeight) / 2;
-        int x = (width - BUTTON_WIDTH) / 2;
+        int startY = (this.height - totalHeight) / 2;
+        int x = (this.width - BUTTON_WIDTH) / 2;
 
         for (int i = 0; i < this.categories.size(); i++) {
-            String category = this.categories.get(i);
+            CatalogPayload.Category category = this.categories.get(i);
             int y = startY + i * (BUTTON_HEIGHT + BUTTON_SPACING);
-            Component label = category.equals("main")
+            Component label = category.isMain()
                 ? Component.translatable("label.imageviewer.main")
-                : Component.translatable("label.imageviewer.category", category);
+                : Component.translatable("label.imageviewer.category", category.name());
 
-            addRenderableWidget(Button.builder(label, _ -> {
-                String url = buildUrl(category);
-                this.minecraft.gui.setScreen(new ImageViewerScreen(url));
-            }).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
+            this.addRenderableWidget(Button.builder(label, _ ->
+                this.minecraft.gui.setScreen(new ImageViewerScreen(category.images(), this.keepAspectRatio))
+            ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
         }
     }
 
@@ -47,14 +49,8 @@ public class ImageViewerSelectionScreen extends Screen {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(final GuiGraphicsExtractor guiGraphics, final int mouseX, final int mouseY, final float partialTick) {
         super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.centeredText(font, title, width / 2, 20, 0xFFFFFF);
+        guiGraphics.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
-
-    private String buildUrl(String category) {
-        return baseUrl + (category.equals("main") ? "" : category + "/");
-    }
-
-    public static String baseUrl = "";
 }

@@ -11,10 +11,8 @@ object BuildConfig {
     val FABRIC_API_VERSION: String = "0.153.0+26.2"
     val PAPER_VERSION: String = "26.2.build.+"
 
-    val MCEF_VERSION: String = "2.2.1-26.2"
-
     // https://semver.org/
-    var MOD_VERSION: String = "0.1.0"
+    var MOD_VERSION: String = "0.2.0"
 
     fun createVersionString(project: Project): String {
         val builder = StringBuilder()
