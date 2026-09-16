@@ -46,6 +46,6 @@ public class ImageViewerSelectionScreen extends Screen {
     @Override
     public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY, final float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
     }
 }

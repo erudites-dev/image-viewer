@@ -4,7 +4,9 @@
   "package": "dev.erudites.mods.imageviewer.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [],
-  "client": [],
+  "client": [
+    "client.GuiGraphicsAccessor"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

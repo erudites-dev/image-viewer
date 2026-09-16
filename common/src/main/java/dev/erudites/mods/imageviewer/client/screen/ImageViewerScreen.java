@@ -260,19 +260,18 @@ public class ImageViewerScreen extends Screen {
 
     @Override
     public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         Slot slot = this.slots.get(this.index);
         if (slot != null && slot.texture != null) {
-            float scale = (float) this.minecraft.getWindow().getGuiScale();
+            int scale = this.minecraft.getWindow().getGuiScale();
             Bounds bounds = this.imageBounds(slot.texture);
-            graphics.pose().pushPose();
-            graphics.pose().scale(1.0F / scale, 1.0F / scale, 1.0F);
+            graphics.pose().pushMatrix();
+            graphics.pose().scale(1.0F / scale, 1.0F / scale);
             slot.texture.draw(graphics, bounds.x0(), bounds.y0(), bounds.x1(), bounds.y1());
-            graphics.pose().popPose();
+            graphics.pose().popMatrix();
             return;
         }
 
-        graphics.drawCenteredString(this.font, this.statusMessage(slot), this.width / 2, this.height / 2, 0xFFFFFF);
+        graphics.drawCenteredString(this.font, this.statusMessage(slot), this.width / 2, this.height / 2, 0xFFFFFFFF);
     }
 
     private Component statusMessage(final @Nullable Slot slot) {

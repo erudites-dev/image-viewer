@@ -9,15 +9,15 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 @Mod(value = ImageViewer.MODID, dist = Dist.CLIENT)
 public class ImageViewerClientNeoForgeMod {
 
     public ImageViewerClientNeoForgeMod(final IEventBus modBus) {
         modBus.addListener(this::registerKeyMappings);
-        ImageViewerClient.init(PacketDistributor::sendToServer);
+        ImageViewerClient.init(ClientPacketDistributor::sendToServer);
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) ->
             ImageViewerClient.tick(Minecraft.getInstance())
         );
