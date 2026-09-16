@@ -60,7 +60,7 @@ gradle.projectsEvaluated {
         }
 
         val minecraftVersion = BuildConfig.MINECRAFT_VERSION.substringBefore('-')
-        val fabricJar = project(":fabric").tasks.named<Jar>("jar").flatMap { it.archiveFile }
+        val fabricJar = project(":fabric").tasks.named<AbstractArchiveTask>("remapJar").flatMap { it.archiveFile }
         val neoforgeJar = project(":neoforge").tasks.named<Jar>("jar").flatMap { it.archiveFile }
         val paperJar = project(":paper").tasks.named<Jar>("jar").flatMap { it.archiveFile }
 

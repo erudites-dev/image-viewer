@@ -13,7 +13,7 @@ import dev.erudites.mods.imageviewer.network.payload.ImageRequestPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashSet;
@@ -33,13 +33,13 @@ public final class ImageViewerClient {
     public static final KeyMapping OPEN_KEY = new KeyMapping(
         "key.imageviewer.open",
         GLFW.GLFW_KEY_I,
-        KeyMapping.Category.register(ImageViewer.id("imageviewer"))
+        "key.categories.imageviewer"
     );
 
     private static final ExecutorService IO_EXECUTOR = daemonExecutor("ImageViewer-IO");
     private static final ExecutorService DECODE_EXECUTOR = daemonExecutor("ImageViewer-Decoder");
 
-    private static Consumer<CustomPacketPayload> serverSender = _ -> {};
+    private static Consumer<CustomPacketPayload> serverSender = payload -> {};
     private static @Nullable ImageStore store;
     private static @Nullable CatalogPayload catalog;
 

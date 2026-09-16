@@ -1,6 +1,6 @@
 # Image Viewer
 
-A multiloader Minecraft mod/plugin (Fabric / NeoForge / Paper) for 26.1+ that lets server operators display images to
+A multiloader Minecraft mod/plugin (Fabric / NeoForge / Paper) for 1.21.1 that lets server operators display images to
 players in a native in-game viewer.
 
 Images are sent byte-for-byte over the Minecraft connection and rendered by the game itself at their original

@@ -1,19 +1,18 @@
 package dev.erudites.mods.imageviewer.client.texture;
 
-import com.mojang.blaze3d.platform.NativeImage;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public final class DecodedImage implements AutoCloseable {
 
-    public record Tile(int x, int y, NativeImage[] mipLevels) {
+    public record Tile(int x, int y, PixelBuffer[] mipLevels) {
         public int width() {
-            return this.mipLevels[0].getWidth();
+            return this.mipLevels[0].width();
         }
 
         public int height() {
-            return this.mipLevels[0].getHeight();
+            return this.mipLevels[0].height();
         }
     }
 
@@ -43,8 +42,8 @@ public final class DecodedImage implements AutoCloseable {
     public long byteSize() {
         long total = 0;
         for (Tile tile : this.tiles) {
-            for (NativeImage level : tile.mipLevels()) {
-                total += (long) level.getWidth() * level.getHeight() * 4L;
+            for (PixelBuffer level : tile.mipLevels()) {
+                total += level.byteSize();
             }
         }
         return total;
@@ -61,10 +60,10 @@ public final class DecodedImage implements AutoCloseable {
         }
     }
 
-    static void closeAll(final @Nullable NativeImage[] images) {
-        for (NativeImage image : images) {
-            if (image != null) {
-                image.close();
+    static void closeAll(final @Nullable PixelBuffer[] buffers) {
+        for (PixelBuffer buffer : buffers) {
+            if (buffer != null) {
+                buffer.close();
             }
         }
     }

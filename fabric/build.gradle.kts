@@ -1,6 +1,6 @@
 plugins {
     id("multiloader-platform")
-    id("net.fabricmc.fabric-loom") version("1.16.+")
+    id("net.fabricmc.fabric-loom-remap") version("1.16.+")
 }
 
 base {
@@ -32,8 +32,9 @@ sourceSets.apply {
 
 dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
-    implementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
-    implementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.FABRIC_API_VERSION}")
+    mappings(loom.officialMojangMappings())
+    modImplementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.FABRIC_API_VERSION}")
 }
 
 loom {
@@ -55,7 +56,7 @@ loom {
 tasks {
     val outputDir = rootProject.layout.buildDirectory.dir("output")
 
-    jar {
+    remapJar {
         from(configurationCommonModJava)
         destinationDirectory.set(outputDir)
     }

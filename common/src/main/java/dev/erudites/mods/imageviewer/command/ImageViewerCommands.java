@@ -10,9 +10,10 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permissions;
 
 public final class ImageViewerCommands {
+
+    private static final int COMMAND_PERMISSION_LEVEL = 2;
 
     private ImageViewerCommands() {}
 
@@ -36,7 +37,7 @@ public final class ImageViewerCommands {
 
     public static LiteralArgumentBuilder<CommandSourceStack> reloadCommand(final PayloadSender sender) {
         return Commands.literal("imageviewer")
-            .requires(src -> src.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+            .requires(src -> src.hasPermission(COMMAND_PERMISSION_LEVEL))
             .then(Commands.literal("reload").executes(ctx -> {
                 int count = reloadAll(ctx.getSource().getServer(), sender);
                 if (count < 0) {

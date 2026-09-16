@@ -1,10 +1,10 @@
 ### Requirements
-- Java 25
-- Minecraft 26.1.x
-- Fabric loader 0.19.2
-- Fabric API 0.147.0+26.1.2
-- NeoForge 26.1.2.30-beta
-- Paper 26.1.2.build.+
+- Java 21
+- Minecraft 1.21.1
+- Fabric loader 0.19.5
+- Fabric API 0.116.17+1.21.1
+- NeoForge 21.1.250
+- Paper 1.21.1
 
 ### Changes (0.2.0)
 - Removed MCEF dependency

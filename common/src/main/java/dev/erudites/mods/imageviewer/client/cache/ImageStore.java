@@ -6,7 +6,7 @@ import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageDataPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageErrorPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageRequestPayload;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -248,7 +248,7 @@ public final class ImageStore {
         this.pending.put(entry.hash(), request);
         CompletableFuture
             .supplyAsync(() -> this.disk.read(entry.hash(), entry.size()), this.io)
-            .exceptionally(_ -> EMPTY)
+            .exceptionally(t -> EMPTY)
             .thenAcceptAsync(bytes -> this.onDiskResult(request, bytes), this.mainThread);
         return request;
     }

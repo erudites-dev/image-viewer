@@ -16,22 +16,22 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public class ImageViewerFabricMod implements ModInitializer {
 
-    private static final PayloadSender SENDER = ServerPlayNetworking::createClientboundPacket;
+    private static final PayloadSender SENDER = ServerPlayNetworking::createS2CPacket;
 
     @Override
     public void onInitialize() {
-        PayloadTypeRegistry.clientboundPlay().register(CatalogPayload.TYPE, CatalogPayload.CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ImageDataPayload.TYPE, ImageDataPayload.CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ImageErrorPayload.TYPE, ImageErrorPayload.CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ImageRequestPayload.TYPE, ImageRequestPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(CatalogPayload.TYPE, CatalogPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ImageDataPayload.TYPE, ImageDataPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ImageErrorPayload.TYPE, ImageErrorPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ImageRequestPayload.TYPE, ImageRequestPayload.CODEC);
 
-        ServerLifecycleEvents.SERVER_STARTED.register(_ -> ImageViewer.start());
-        ServerLifecycleEvents.SERVER_STOPPING.register(_ -> ImageViewer.stop());
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> ImageViewer.start());
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> ImageViewer.stop());
 
-        ServerPlayConnectionEvents.JOIN.register((handler, _, _) ->
+        ServerPlayConnectionEvents.JOIN.register((handler, packetSender, server) ->
             ImageViewer.sendCatalog(handler.player, SENDER)
         );
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, _) ->
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) ->
             ImageViewer.onPlayerLeave(handler.player.getUUID())
         );
 
@@ -39,7 +39,7 @@ public class ImageViewerFabricMod implements ModInitializer {
             ImageViewer.handleRequest(context.player(), payload.entries(), SENDER)
         );
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) ->
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
             dispatcher.register(ImageViewerCommands.reloadCommand(SENDER))
         );
     }

@@ -1,6 +1,5 @@
 package dev.erudites.mods.imageviewer.client.texture;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -61,11 +60,11 @@ class ImageDecoderTest {
         BufferedImage source = this.randomImage(100, 7, BufferedImage.TYPE_INT_ARGB);
 
         try (DecodedImage decoded = ImageDecoder.decode(this.encode(source, "png"), 1024)) {
-            NativeImage[] levels = decoded.tiles().getFirst().mipLevels();
+            PixelBuffer[] levels = decoded.tiles().getFirst().mipLevels();
             assertEquals(3, levels.length);
             for (int level = 0; level < levels.length; level++) {
-                assertEquals(100 >> level, levels[level].getWidth());
-                assertEquals(7 >> level, levels[level].getHeight());
+                assertEquals(100 >> level, levels[level].width());
+                assertEquals(7 >> level, levels[level].height());
             }
         }
     }
@@ -79,13 +78,13 @@ class ImageDecoderTest {
         source.setRGB(1, 1, 0x00FF0000);
 
         try (DecodedImage decoded = ImageDecoder.decode(this.encode(source, "png"), 1024)) {
-            NativeImage mip = decoded.tiles().getFirst().mipLevels()[1];
-            assertEquals(0x80FFFFFF, mip.getPixel(0, 0));
+            PixelBuffer mip = decoded.tiles().getFirst().mipLevels()[1];
+            assertEquals(0x80FFFFFF, mip.pixelArgb(0, 0));
         }
     }
 
     @Test
-    void closeReleasesEveryNativeImage() throws IOException {
+    void closeReleasesEveryPixelBuffer() throws IOException {
         DecodedImage decoded = ImageDecoder.decode(this.encode(this.randomImage(70, 45, BufferedImage.TYPE_INT_ARGB), "png"), 32);
         List<DecodedImage.Tile> tiles = decoded.tiles();
 
@@ -93,7 +92,7 @@ class ImageDecoderTest {
         decoded.close();
 
         for (DecodedImage.Tile tile : tiles) {
-            for (NativeImage level : tile.mipLevels()) {
+            for (PixelBuffer level : tile.mipLevels()) {
                 assertTrue(level.isClosed());
             }
         }
@@ -124,11 +123,11 @@ class ImageDecoderTest {
 
     private void assertPixelsEqual(final BufferedImage source, final DecodedImage decoded) {
         for (DecodedImage.Tile tile : decoded.tiles()) {
-            NativeImage base = tile.mipLevels()[0];
-            for (int y = 0; y < base.getHeight(); y++) {
-                for (int x = 0; x < base.getWidth(); x++) {
+            PixelBuffer base = tile.mipLevels()[0];
+            for (int y = 0; y < base.height(); y++) {
+                for (int x = 0; x < base.width(); x++) {
                     int expected = source.getRGB(tile.x() + x, tile.y() + y);
-                    assertEquals(expected, base.getPixel(x, y), "pixel " + (tile.x() + x) + "," + (tile.y() + y));
+                    assertEquals(expected, base.pixelArgb(x, y), "pixel " + (tile.x() + x) + "," + (tile.y() + y));
                 }
             }
         }

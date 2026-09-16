@@ -5,7 +5,7 @@ import dev.erudites.mods.imageviewer.network.payload.ImageDataPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageErrorPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageRequestPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

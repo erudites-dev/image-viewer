@@ -1,7 +1,7 @@
 package dev.erudites.mods.imageviewer.client.screen;
 
 import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -37,20 +37,15 @@ public class ImageViewerSelectionScreen extends Screen {
                 ? Component.translatable("label.imageviewer.main")
                 : Component.translatable("label.imageviewer.category", category.name());
 
-            this.addRenderableWidget(Button.builder(label, _ ->
+            this.addRenderableWidget(Button.builder(label, button ->
                 this.minecraft.setScreen(new ImageViewerScreen(category.images(), this.keepAspectRatio))
             ).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build());
         }
     }
 
     @Override
-    public boolean isInGameUi() {
-        return true;
-    }
-
-    @Override
-    public void extractRenderState(final GuiGraphicsExtractor guiGraphics, final int mouseX, final int mouseY, final float partialTick) {
-        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
+    public void render(final GuiGraphics guiGraphics, final int mouseX, final int mouseY, final float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFF);
     }
 }

@@ -9,12 +9,10 @@ import dev.erudites.mods.imageviewer.client.texture.DecodedImage;
 import dev.erudites.mods.imageviewer.client.texture.ImageDecoder;
 import dev.erudites.mods.imageviewer.client.texture.ImageTexture;
 import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
@@ -94,7 +92,7 @@ public class ImageViewerScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.maxTextureSize = RenderSystem.getDevice().getMaxTextureSize();
+        this.maxTextureSize = RenderSystem.maxSupportedTextureSize();
         if (this.active && !this.slots.containsKey(this.index)) {
             this.show(this.index);
         }
@@ -201,7 +199,7 @@ public class ImageViewerScreen extends Screen {
                 return;
             }
             long uploadStart = System.nanoTime();
-            slot.texture = ImageTexture.upload(ImageViewer.MODID + ":" + entry.hash(), decoded);
+            slot.texture = ImageTexture.upload(decoded);
             if (ImageStore.LOG_TIMINGS) {
                 ImageViewer.LOGGER.info(
                     "[timings] {} ({}x{}, {} tiles) decode+mipmap {} ms, upload {} ms",
@@ -256,24 +254,25 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public void extractBackground(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
+    public void renderBackground(final GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTick) {
         graphics.fill(0, 0, this.width, this.height, 0xFF000000);
     }
 
     @Override
-    public void extractRenderState(final GuiGraphicsExtractor graphics, final int mouseX, final int mouseY, final float partialTick) {
+    public void render(final GuiGraphics graphics, final int mouseX, final int mouseY, final float partialTick) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         Slot slot = this.slots.get(this.index);
         if (slot != null && slot.texture != null) {
-            int scale = this.minecraft.getWindow().getGuiScale();
+            float scale = (float) this.minecraft.getWindow().getGuiScale();
             Bounds bounds = this.imageBounds(slot.texture);
-            graphics.pose().pushMatrix();
-            graphics.pose().scale(1.0F / scale, 1.0F / scale);
+            graphics.pose().pushPose();
+            graphics.pose().scale(1.0F / scale, 1.0F / scale, 1.0F);
             slot.texture.draw(graphics, bounds.x0(), bounds.y0(), bounds.x1(), bounds.y1());
-            graphics.pose().popMatrix();
+            graphics.pose().popPose();
             return;
         }
 
-        graphics.centeredText(this.font, this.statusMessage(slot), this.width / 2, this.height / 2, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font, this.statusMessage(slot), this.width / 2, this.height / 2, 0xFFFFFF);
     }
 
     private Component statusMessage(final @Nullable Slot slot) {
@@ -335,22 +334,22 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(final MouseButtonEvent event, final boolean doubleClick) {
-        this.pressedButton = event.button();
-        this.pressX = event.x();
-        this.pressY = event.y();
+    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        this.pressedButton = button;
+        this.pressX = mouseX;
+        this.pressY = mouseY;
         this.dragging = false;
         return true;
     }
 
     @Override
-    public boolean mouseDragged(final MouseButtonEvent event, final double dragX, final double dragY) {
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT || this.pressedButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+    public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double dragX, final double dragY) {
+        if (button != GLFW.GLFW_MOUSE_BUTTON_LEFT || this.pressedButton != GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             return true;
         }
-        int scale = this.minecraft.getWindow().getGuiScale();
+        double scale = this.minecraft.getWindow().getGuiScale();
         if (!this.dragging) {
-            double distance = Math.hypot(event.x() - this.pressX, event.y() - this.pressY) * scale;
+            double distance = Math.hypot(mouseX - this.pressX, mouseY - this.pressY) * scale;
             this.dragging = distance > DRAG_THRESHOLD_PIXELS;
         }
         if (this.dragging) {
@@ -362,8 +361,8 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(final MouseButtonEvent event) {
-        if (event.button() != this.pressedButton) {
+    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
+        if (button != this.pressedButton) {
             return true;
         }
         boolean wasDragging = this.dragging;
@@ -372,9 +371,9 @@ public class ImageViewerScreen extends Screen {
         if (wasDragging) {
             return true;
         }
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             this.next();
-        } else if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        } else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             this.previous();
         }
         return true;
@@ -387,7 +386,7 @@ public class ImageViewerScreen extends Screen {
             return true;
         }
         Window window = this.minecraft.getWindow();
-        int scale = window.getGuiScale();
+        double scale = window.getGuiScale();
         double newZoom = Math.clamp(this.zoom * Math.pow(ZOOM_STEP, scrollY), MIN_ZOOM, MAX_ZOOM);
         double ratio = newZoom / this.zoom;
         double offsetX = mouseX * scale - (window.getWidth() / 2.0 + this.panX);
@@ -400,8 +399,8 @@ public class ImageViewerScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(final KeyEvent event) {
-        switch (event.key()) {
+    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
+        switch (keyCode) {
             case GLFW.GLFW_KEY_RIGHT, GLFW.GLFW_KEY_SPACE, GLFW.GLFW_KEY_PAGE_DOWN -> {
                 this.next();
                 return true;
@@ -415,7 +414,7 @@ public class ImageViewerScreen extends Screen {
                 return true;
             }
             default -> {
-                return super.keyPressed(event);
+                return super.keyPressed(keyCode, scanCode, modifiers);
             }
         }
     }

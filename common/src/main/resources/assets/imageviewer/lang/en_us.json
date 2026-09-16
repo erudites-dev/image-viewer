@@ -1,6 +1,6 @@
 {
   "key.imageviewer.open": "Open Image Viewer",
-  "key.category.imageviewer.imageviewer": "Image Viewer",
+  "key.categories.imageviewer": "Image Viewer",
   "screen.imageviewer.select_category": "Select Category",
   "screen.imageviewer.loading": "Loading image...",
   "screen.imageviewer.downloading": "Downloading image... %s%% (%s / %s MB)",

@@ -4,6 +4,7 @@ import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageDataPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageErrorPayload;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +23,7 @@ public interface PayloadSender {
     }
 
     default void send(final ServerPlayer player, final CustomPacketPayload payload, final Runnable onWritten) {
-        player.connection.send(this.packet(payload), _ -> onWritten.run());
+        player.connection.send(this.packet(payload), PacketSendListener.thenRun(onWritten));
     }
 
     static void encode(final ByteBuf buf, final CustomPacketPayload payload) {

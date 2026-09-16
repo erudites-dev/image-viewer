@@ -42,8 +42,8 @@ public class ImageViewerNeoForgeMod {
         modBus.addListener(this::registerPayloads);
 
         IEventBus gameBus = NeoForge.EVENT_BUS;
-        gameBus.addListener((ServerStartedEvent _) -> ImageViewer.start());
-        gameBus.addListener((ServerStoppingEvent _) -> ImageViewer.stop());
+        gameBus.addListener((ServerStartedEvent event) -> ImageViewer.start());
+        gameBus.addListener((ServerStoppingEvent event) -> ImageViewer.stop());
         gameBus.addListener(this::playerJoin);
         gameBus.addListener(this::playerLeave);
         gameBus.addListener(this::registerCommands);
@@ -54,17 +54,17 @@ public class ImageViewerNeoForgeMod {
         registrar.playToClient(
             CatalogPayload.TYPE,
             CatalogPayload.CODEC,
-            (payload, _) -> ImageViewerClient.onCatalog(Minecraft.getInstance(), payload)
+            (payload, context) -> ImageViewerClient.onCatalog(Minecraft.getInstance(), payload)
         );
         registrar.playToClient(
             ImageDataPayload.TYPE,
             ImageDataPayload.CODEC,
-            (payload, _) -> ImageViewerClient.onData(Minecraft.getInstance(), payload)
+            (payload, context) -> ImageViewerClient.onData(Minecraft.getInstance(), payload)
         );
         registrar.playToClient(
             ImageErrorPayload.TYPE,
             ImageErrorPayload.CODEC,
-            (payload, _) -> ImageViewerClient.onError(Minecraft.getInstance(), payload)
+            (payload, context) -> ImageViewerClient.onError(Minecraft.getInstance(), payload)
         );
         registrar.playToServer(
             ImageRequestPayload.TYPE,
