@@ -46,7 +46,6 @@ gradle.projectsEvaluated {
             serverRequired = true
             javaVersions.add(JavaVersion.toVersion(BuildConfig.JAVA_VERSION))
             requires("fabric-api")
-            embeds("mcef-keksuccino")
         }
 
         val mrOptions = modrinthOptions {
@@ -58,7 +57,6 @@ gradle.projectsEvaluated {
                 includeSnapshots = includeSnapshot
             }
             requires("fabric-api")
-            embeds("mcef-keksuccino")
         }
 
         val minecraftVersion = BuildConfig.MINECRAFT_VERSION.substringBefore('-')

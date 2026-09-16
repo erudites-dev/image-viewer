@@ -11,8 +11,6 @@ object BuildConfig {
     val FABRIC_API_VERSION: String = "0.147.0+26.1.2"
     val PAPER_VERSION: String = "26.1.2.build.+"
 
-    val MCEF_VERSION: String = "2.2.0-26.1.1"
-
     // https://semver.org/
     var MOD_VERSION: String = "0.1.0"
 

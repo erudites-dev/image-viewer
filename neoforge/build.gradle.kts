@@ -21,8 +21,6 @@ repositories {
 dependencies {
     configurationCommonModJava(project(path = ":common", configuration = "commonMainJava"))
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
-
-    implementation(jarJar("de.keksuccino:mcef-neoforge:${BuildConfig.MCEF_VERSION}")!!)
 }
 
 sourceSets {

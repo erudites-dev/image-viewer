@@ -9,7 +9,7 @@ displayName="Image Viewer"
 version="${version}"
 authors="shihyeon"
 description='''
-Renders server-provided images in an in-game browser overlay.
+Renders server-provided images in a native in-game viewer.
 '''
 displayURL="https://modrinth.com/mod/image-viewer"
 
@@ -29,10 +29,3 @@ type="required"
 versionRange="[${minecraft_version},)"
 ordering="NONE"
 side="BOTH"
-
-[[dependencies.imageviewer]]
-modId="mcef"
-type="required"
-versionRange="[0,)"
-ordering="AFTER"
-side="CLIENT"

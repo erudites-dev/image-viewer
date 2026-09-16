@@ -5,7 +5,7 @@
 Drop image files (`.png`, `.jpg`, `.jpeg`) into the `images/` directory next to this file.
 
 - Files placed directly in `images/` form the **Main** category.
-- Each subdirectory in `images/` becomes its own category.
+- Each subdirectory in `images/` becomes its own category (a subdirectory named `main` is ignored).
 - Files are shown in numerical order (the number extracted from the filename).
 
 ```
@@ -17,19 +17,19 @@ images/
     └── 2.png
 ```
 
+Images are sent to players over the game connection at their original resolution. No extra port or firewall rule is needed.
+
 ## 2. Configure `config.json`
 
-- `webServerPort` — HTTP port the image server listens on. Default `25580`. `0` = random available port (not recommended; clients may be blocked by firewall).
+- `maxImageBytes` — largest image file offered to clients. Default `33554432` (32 MiB). Larger files are skipped.
+- `maxUploadBytesPerSecond` — optional upload speed limit per player. Default `0` (unlimited, as fast as the connection allows).
+- `keepAspectRatio` — `false` (default) stretches images to fill the screen, `true` fits them while keeping their aspect ratio.
 
-Restart the server after editing.
-
-## 3. Open the Firewall
-
-Open the configured port for clients to reach it, in addition to the Minecraft port (default `25565`).
+Run `/imageviewer reload` after editing.
 
 ## Commands
 
-- `/imageviewer reload` — re-detects categories and pushes the updated list to every online player. Op level 2 (gamemaster) required. Use after adding/removing images or category folders. Port changes still need a server restart.
+- `/imageviewer reload` — reloads `config.json`, re-scans `images/` and pushes the updated list to every online player. Op level 2 (gamemaster) required.
 
 ---
 

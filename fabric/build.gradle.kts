@@ -34,8 +34,6 @@ dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
     implementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
     implementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.FABRIC_API_VERSION}")
-
-    implementation(include("de.keksuccino:mcef-fabric:${BuildConfig.MCEF_VERSION}")!!)
 }
 
 loom {
