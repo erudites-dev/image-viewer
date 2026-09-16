@@ -129,7 +129,9 @@ gradle.projectsEvaluated {
         github {
             accessToken = projectProviders.environmentVariable("GITHUB_TOKEN")
             repository = "erudites-dev/image-viewer"
-            commitish = "main"
+            commitish = projectProviders.environmentVariable("GITHUB_SHA").orElse(
+                projectProviders.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
+            )
             tagName = "${BuildConfig.MOD_VERSION}+mc${BuildConfig.MINECRAFT_VERSION}"
             version = "${BuildConfig.MOD_VERSION}+mc${BuildConfig.MINECRAFT_VERSION}"
             displayName = "Image Viewer ${BuildConfig.MOD_VERSION} for Minecraft ${BuildConfig.MINECRAFT_VERSION}"
