@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -105,13 +105,14 @@ public final class ImageTexture implements AutoCloseable {
         if (this.closed) {
             return;
         }
+        graphics.flush();
         Matrix4f pose = graphics.pose().last().pose();
         double scaleX = (double) (x1 - x0) / this.width;
         double scaleY = (double) (y1 - y0) / this.height;
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         for (GlTile tile : this.tiles) {
             float left = x0 + Math.round(tile.x() * scaleX);
             float right = x0 + Math.round((tile.x() + tile.width()) * scaleX);
