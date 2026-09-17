@@ -7,7 +7,4 @@
 - Paper 1.21-1.21.1
 
 ### Changes (0.2.0)
-- Removed MCEF dependency
-- Switched image transfer to the game connection
-- Added disk cache, download progress, zoom and pan
-- Changed config options
+- Backported to Minecraft 1.21-1.21.1
