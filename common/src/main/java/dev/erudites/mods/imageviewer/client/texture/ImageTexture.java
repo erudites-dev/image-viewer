@@ -4,8 +4,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.AddressMode;
 import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.blaze3d.textures.GpuSampler;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.textures.TextureFormat;
@@ -65,8 +65,6 @@ public final class ImageTexture implements AutoCloseable {
                         NativeImage source = levels[level];
                         encoder.writeToTexture(texture, source, level, 0, 0, 0, source.getWidth(), source.getHeight(), 0, 0);
                     }
-                    texture.setAddressMode(AddressMode.CLAMP_TO_EDGE);
-                    texture.setTextureFilter(FilterMode.LINEAR, true);
                     view = device.createTextureView(texture);
                 } catch (RuntimeException | Error e) {
                     texture.close();
@@ -99,6 +97,7 @@ public final class ImageTexture implements AutoCloseable {
         if (this.closed) {
             return;
         }
+        GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR, true);
         double scaleX = (double) (x1 - x0) / this.width;
         double scaleY = (double) (y1 - y0) / this.height;
         for (GpuTile tile : this.tiles) {
@@ -110,6 +109,7 @@ public final class ImageTexture implements AutoCloseable {
                 ((GuiGraphicsAccessor) graphics).imageviewer$submitBlit(
                     RenderPipelines.GUI_TEXTURED,
                     tile.view(),
+                    sampler,
                     left,
                     top,
                     right,

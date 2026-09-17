@@ -7,9 +7,9 @@ import dev.erudites.mods.imageviewer.network.payload.CatalogPayload;
 import dev.erudites.mods.imageviewer.network.payload.ImageRequestPayload;
 import dev.erudites.mods.imageviewer.server.ImageCatalog;
 import dev.erudites.mods.imageviewer.server.ImageTransferService;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,11 +96,11 @@ public final class ImageViewer {
         }
     }
 
-    public static ResourceLocation id(final String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier id(final String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
-    public static ResourceLocation payloadId(final String name) {
+    public static Identifier payloadId(final String name) {
         return id(name + "_v" + NETWORK_VERSION);
     }
 }

@@ -1,7 +1,7 @@
 package dev.erudites.mods.imageviewer.client.texture;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
