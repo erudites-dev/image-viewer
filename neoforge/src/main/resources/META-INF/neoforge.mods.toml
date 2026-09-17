@@ -17,13 +17,6 @@ displayURL="https://modrinth.com/mod/image-viewer"
 config="imageviewer.mixins.json"
 
 [[dependencies.imageviewer]]
-modId="neoforge"
-type="required"
-versionRange="[${neoforge_version},)"
-ordering="NONE"
-side="BOTH"
-
-[[dependencies.imageviewer]]
 modId="minecraft"
 type="required"
 versionRange="${minecraft_version_maven}"
