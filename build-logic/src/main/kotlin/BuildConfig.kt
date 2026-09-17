@@ -12,7 +12,7 @@ object BuildConfig {
     val PAPER_VERSION: String = "26.3.build.+"
 
     // https://semver.org/
-    var MOD_VERSION: String = "0.2.0"
+    var MOD_VERSION: String = "0.2.1"
 
     val MINECRAFT_VERSION_MIN: String
         get() = LOWER_BOUND.version
